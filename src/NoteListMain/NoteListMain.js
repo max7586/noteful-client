@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,7 +6,6 @@ import CircleButton from '../CircleButton/CircleButton'
 import ApiContext from '../ApiContext'
 import { getNotesForFolder } from '../notes-helpers'
 import './NoteListMain.css'
-import PropTypes from 'prop-types';
 
 export default class NoteListMain extends React.Component {
   static defaultProps = {
@@ -19,7 +17,7 @@ export default class NoteListMain extends React.Component {
 
   render() {
     const { folderId } = this.props.match.params
-    const { notes = [] } = this.context
+    const { notes=[] } = this.context
     const notesForFolder = getNotesForFolder(notes, folderId)
     return (
       <section className='NoteListMain'>
@@ -50,13 +48,3 @@ export default class NoteListMain extends React.Component {
     )
   }
 }
-
-NoteListMain.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      folderId: PropTypes.string
-    }),
-    path: PropTypes.string,
-    url: PropTypes.string,
-  })
-} 

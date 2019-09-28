@@ -1,9 +1,8 @@
-.add-note {
-  color: white;
+
+.AddNote {
+  color: #dedede;
 }
 
-
-
-input, textarea, select{
-  color: black;
+.AddNote h2 {
+  margin-left: 16px;
 }

@@ -1,75 +1,85 @@
-import React from 'react';
-import ApiContext from '../ApiContext';
+import React, { Component } from 'react'
+import NotefulForm from '../NotefulForm/NotefulForm'
+import ApiContext from '../ApiContext'
+import config from '../config'
 import './AddNote.css'
 
-export default class AddNote extends React.Component {
-
-  static contextType = ApiContext;
-
-  state = {
-    noteName: '',
-    noteContent: '',
-    isNameValid: false,
-    validationMessages: {
-      name: 'Note requires a non-empty name',
+export default class AddNote extends Component {
+  
+  static defaultProps = {
+    history: {
+      push: () => { }
     },
   }
+  static contextType = ApiContext;
 
-  setName(name) {
-    this.setState({
-      noteName: name,
-    }, this.validateName(name))
-    
-  }
-
-  validateName(name) {
-    let isValid = true;
-    const validationMessages = { ...this.state.validationMessages };
-
-    if (name.length === 0) {
-      validationMessages.name = 'Note requires a non-empty name'
-      isValid = false;
+  handleSubmit = e => {
+    e.preventDefault()
+    const newNote = {
+      name: e.target['note-name'].value,
+      content: e.target['note-content'].value,
+      folderId: e.target['note-folder-id'].value,
+      modified: new Date(),
     }
-
-    this.setState({
-      isNameValid: isValid,
-      validationMessages,
+    fetch(`${config.API_ENDPOINT}/notes`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(newNote),
     })
+      .then(res => {
+        if (!res.ok)
+          return res.json().then(e => Promise.reject(e))
+        return res.json()
+      })
+      .then(note => {
+        this.context.addNote(note)
+        this.props.history.push(`/folders/${note.folderId}`)
+      })
+      .catch(error => {
+        console.error({ error })
+      })
   }
 
   render() {
-
-    const folderSelections = this.context.folders.map((folder, index) => {
-      return <option key={index} value={folder.id}>{folder.name}</option>;
-    });
-
+    const { folders=[] } = this.context
     return (
-
-      <div className='add-note'>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          this.context.addNote(e.target.noteName.value,
-            e.target.noteContent.value, e.target.folderSelection.value)
-        }
-        }>
-          <label htmlFor='noteName'>Note Name:
-              {!this.state.isNameValid && (<p className='error'>{this.state.validationMessages.name}</p>)}
-          </label>
-          <input id='noteName' type="text" onChange={(e) => this.setName(e.target.value)} />
-
-          <label htmlFor='noteContent'>Note Content: </label>
-          <textarea id='noteContent' type="text" />
-
-          <label htmlFor='folderSelection'>Select Folder: </label>
-          <select id='folderSelection' required >
-            {folderSelections}
-          </select>
-
-          <button type='submit' disabled={!this.state.isNameValid}>Submit</button>
-        </form>
-      </div>
-
+      <section className='AddNote'>
+        <h2>Create a note</h2>
+        <NotefulForm onSubmit={this.handleSubmit}>
+          <div className='field'>
+            <label htmlFor='note-name-input'>
+              Name
+            </label>
+            <input type='text' id='note-name-input' name='note-name' />
+          </div>
+          <div className='field'>
+            <label htmlFor='note-content-input'>
+              Content
+            </label>
+            <textarea id='note-content-input' name='note-content' />
+          </div>
+          <div className='field'>
+            <label htmlFor='note-folder-select'>
+              Folder
+            </label>
+            <select id='note-folder-select' name='note-folder-id'>
+              <option value={null}>...</option>
+              {folders.map(folder =>
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              )}
+            </select>
+          </div>
+          <div className='buttons'>
+            <button type='submit'>
+              Add note
+            </button>
+          </div>
+        </NotefulForm>
+      </section>
     )
   }
-
 }
