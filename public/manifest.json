@@ -1,6 +1,6 @@
 {
   "short_name": "Noteful",
-  "name": "Noteful Client",
+  "name": "noteful-client",
   "icons": [
     {
       "src": "favicon.ico",
