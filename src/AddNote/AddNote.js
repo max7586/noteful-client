@@ -8,7 +8,7 @@ export default class AddNote extends Component {
   state = {
     'note-name': "",
     'note-folder-id': "",
-    // 'note-content': "",
+    'note-content': "",
     error: null
   };
   static defaultProps = {
@@ -34,7 +34,11 @@ export default class AddNote extends Component {
       this.setState({
         error: "You must choose a folder"
       });
-    } else {
+    } else if (!this.state["note-content"]) {
+      this.setState({
+        error: "Content is Required"
+      });
+    }  else {
       const newNote = {
       name: e.target['note-name'].value,
       content: e.target['note-content'].value,
